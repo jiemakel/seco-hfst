@@ -1,0 +1,59 @@
+package fi.seco.hfst;
+
+import com.carrotsearch.hppc.CharIntOpenHashMap;
+import com.carrotsearch.hppc.CharObjectOpenHashMap;
+
+public class LetterTrie {
+	public class LetterTrieNode {
+		private final CharIntOpenHashMap symbols;
+		private final CharObjectOpenHashMap<LetterTrieNode> children;
+
+		public void addString(String str, int symbolNumber) {
+			if (str.length() > 1) {
+				if (children.containsKey(str.charAt(0)) == false) children.put(str.charAt(0), new LetterTrieNode());
+				children.get(str.charAt(0)).addString(str.substring(1, str.length()), symbolNumber);
+			} else if (str.length() == 1) symbols.put(str.charAt(0), symbolNumber);
+		}
+
+		public int findKey(IndexString string) {
+			if (string.index >= string.str.length()) return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+			Character at_s = string.str.charAt(string.index);
+			++string.index;
+			if (!children.containsKey(at_s)) {
+				if (!symbols.containsKey(at_s)) {
+					--string.index;
+					return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				}
+				return symbols.lget();
+			}
+			int s = children.lget().findKey(string);
+			if (s == HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
+				if (!symbols.containsKey(at_s)) {
+					--string.index;
+					return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				}
+				return symbols.lget();
+			}
+			return s;
+		}
+
+		public LetterTrieNode() {
+			symbols = new CharIntOpenHashMap();
+			children = new CharObjectOpenHashMap<LetterTrieNode>();
+		}
+	}
+
+	private final LetterTrieNode root;
+
+	public LetterTrie() {
+		root = new LetterTrieNode();
+	}
+
+	public void addString(String str, int symbolNumber) {
+		root.addString(str, symbolNumber);
+	}
+
+	int findKey(IndexString str) {
+		return root.findKey(str);
+	}
+}
