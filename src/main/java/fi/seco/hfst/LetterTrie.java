@@ -19,20 +19,23 @@ public class LetterTrie {
 			if (string.index >= string.str.length()) return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
 			Character at_s = string.str.charAt(string.index);
 			++string.index;
-			if (!children.containsKey(at_s)) {
-				if (!symbols.containsKey(at_s)) {
+			LetterTrieNode child = children.get(at_s);
+			if (child==null) {
+				int symbol = symbols.get(at_s);
+				if (symbol==0) {
 					--string.index;
 					return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
 				}
-				return symbols.lget();
+				return symbol;
 			}
-			int s = children.lget().findKey(string);
+			int s = child.findKey(string);
 			if (s == HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
-				if (!symbols.containsKey(at_s)) {
+				int symbol = symbols.get(at_s);
+				if (symbol==0) {
 					--string.index;
 					return HfstOptimizedLookup.NO_SYMBOL_NUMBER;
 				}
-				return symbols.lget();
+				return symbol;
 			}
 			return s;
 		}
