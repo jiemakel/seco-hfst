@@ -1,6 +1,6 @@
 package fi.seco.hfst;
 
-import java.io.DataInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -34,9 +34,9 @@ public class UnweightedTransducer implements Transducer {
 			return (ti_inputSymbols[i] == HfstOptimizedLookup.NO_SYMBOL_NUMBER && ti_targets[i] != HfstOptimizedLookup.NO_TABLE_INDEX);
 		}
 
-		public IndexTable(DataInputStream filestream, int indicesCount) throws java.io.IOException {
+		public IndexTable(InputStream input, int indicesCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(indicesCount * 6);
-			filestream.readFully(b.getBytes());
+			input.read(b.getBytes());
 			// each index entry is a unsigned short followed by an unsigned int
 			ti_inputSymbols = new int[indicesCount];
 			ti_targets = new long[indicesCount];
@@ -60,10 +60,10 @@ public class UnweightedTransducer implements Transducer {
 		private final int[] ti_outputSymbols;
 		private final long[] ti_targets;
 
-		public TransitionTable(DataInputStream filestream, int transitionCount) throws java.io.IOException {
+		public TransitionTable(InputStream input, int transitionCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(transitionCount * 8);
 			// each transition entry is two unsigned shorts and an unsigned int
-			filestream.readFully(b.getBytes());
+			input.read(b.getBytes());
 			ti_inputSymbols = new int[transitionCount];
 			ti_outputSymbols = new int[transitionCount];
 			ti_targets = new long[transitionCount];
@@ -143,7 +143,7 @@ public class UnweightedTransducer implements Transducer {
 		}
 	}
 
-	public UnweightedTransducer(DataInputStream file, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
+	public UnweightedTransducer(InputStream input, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
 		header = h;
 		alphabet = a;
 		operations = alphabet.operations;
@@ -153,8 +153,8 @@ public class UnweightedTransducer implements Transducer {
 			letterTrie.addString(alphabet.keyTable.get(i), i);
 			i++;
 		}
-		indexTable = new IndexTable(file, header.getIndexTableSize());
-		transitionTable = new TransitionTable(file, header.getTargetTableSize());
+		indexTable = new IndexTable(input, header.getIndexTableSize());
+		transitionTable = new TransitionTable(input, header.getTargetTableSize());
 	}
 
 	private int pivot(long i) {
