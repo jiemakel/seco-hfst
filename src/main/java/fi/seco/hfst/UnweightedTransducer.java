@@ -136,7 +136,10 @@ public class UnweightedTransducer implements Transducer {
 			IndexString inputLine = new IndexString(input);
 			while (inputLine.index < input.length()) {
 				inputString.add(letterTrie.findKey(inputLine));
-				if (inputString.get(inputString.size() - 1) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) break;
+				if (inputString.get(inputString.size() - 1) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
+					inputString.clear();
+					break;
+				}
 			}
 			inputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 
@@ -216,7 +219,7 @@ public class UnweightedTransducer implements Transducer {
 			tryEpsilonTransitions(index + 1, state);
 			if (state.inputString.get(state.inputPointer) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) { // end of input string
 				state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
-				if (transitionTable.isFinal(index)) noteAnalysis(state);
+				if (transitionTable.size() > index && transitionTable.isFinal(index)) noteAnalysis(state);
 				return;
 			}
 			++state.inputPointer;

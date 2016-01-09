@@ -143,10 +143,12 @@ public class WeightedTransducer implements Transducer {
 			IndexString inputLine = new IndexString(input);
 			while (inputLine.index < input.length()) {
 				inputString.add(letterTrie.findKey(inputLine));
-				if (inputString.get(inputString.size() - 1) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) break;
+				if (inputString.get(inputString.size() - 1) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
+					inputString.clear();
+					break;
+				}
 			}
 			inputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
-
 		}
 	}
 
