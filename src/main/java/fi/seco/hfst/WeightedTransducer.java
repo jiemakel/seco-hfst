@@ -119,7 +119,7 @@ public class WeightedTransducer implements Transducer {
 	private class State {
 		protected Stack<int[]> stateStack;
 		protected ArrayList<Result> displayVector;
-		protected int[] outputString;
+		protected IntArrayList outputString;
 		protected IntArrayList inputString;
 		protected int outputPointer;
 		protected int inputPointer;
@@ -131,9 +131,7 @@ public class WeightedTransducer implements Transducer {
 			for (int i = 0; i < neutral.length; ++i)
 				neutral[i] = 0;
 			stateStack.push(neutral);
-			outputString = new int[1000];
-			for (int i = 0; i < 1000; i++)
-				outputString[i] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+			outputString = new IntArrayList();
 			inputString = new IntArrayList();
 			outputPointer = 0;
 			inputPointer = 0;
@@ -182,7 +180,8 @@ public class WeightedTransducer implements Transducer {
 					++index;
 					continue;
 				} else {
-					state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+					if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+					else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 					++state.outputPointer;
 					state.current_weight += transitionTable.getWeight(index);
 					getAnalyses(transitionTable.getTarget(index), state);
@@ -193,7 +192,8 @@ public class WeightedTransducer implements Transducer {
 					continue;
 				}
 			} else if (transitionTable.getInput(index) == 0) { // epsilon transitions
-				state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+				else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 				++state.outputPointer;
 				state.current_weight += transitionTable.getWeight(index);
 				getAnalyses(transitionTable.getTarget(index), state);
@@ -212,13 +212,15 @@ public class WeightedTransducer implements Transducer {
 	private void findTransitions(int index, State state) {
 		while (transitionTable.getInput(index) != HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
 			if (transitionTable.getInput(index) == state.inputString.get(state.inputPointer - 1)) {
-				state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+				else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 				++state.outputPointer;
 				state.current_weight += transitionTable.getWeight(index);
 				getAnalyses(transitionTable.getTarget(index), state);
 				state.current_weight -= transitionTable.getWeight(index);
 				--state.outputPointer;
-			} else return;
+			} else 
+				return;
 			++index;
 		}
 	}
@@ -228,7 +230,8 @@ public class WeightedTransducer implements Transducer {
 			int index = pivot(idx);
 			tryEpsilonTransitions(index + 1, state);
 			if (state.inputString.get(state.inputPointer) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) { // end of input string
-				state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+				else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 				if (transitionTable.size() > index && transitionTable.isFinal(index)) {
 					state.current_weight += transitionTable.getWeight(index);
 					noteAnalysis(state);
@@ -242,7 +245,8 @@ public class WeightedTransducer implements Transducer {
 			int index = pivot(idx);
 			tryEpsilonIndices(index + 1, state);
 			if (state.inputString.get(state.inputPointer) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) { // end of input string
-				state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+				else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 				if (indexTable.isFinal(index)) {
 					state.current_weight += indexTable.getFinalWeight(index);
 					noteAnalysis(state);
@@ -254,15 +258,20 @@ public class WeightedTransducer implements Transducer {
 			findIndex(index + 1, state);
 		}
 		--state.inputPointer;
-		state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+		if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+		else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+	}
+	
+	private List<String> getSymbols(State state) {
+		int i = 0;
+		List<String> symbols = new ArrayList<String>();
+		while (i<state.outputString.size() && state.outputString.get(i) != HfstOptimizedLookup.NO_SYMBOL_NUMBER)
+			symbols.add(alphabet.keyTable.get(state.outputString.get(i++)));
+		return symbols;
 	}
 
 	private void noteAnalysis(State state) {
-		int i = 0;
-		List<String> symbols = new ArrayList<String>();
-		while (state.outputString[i] != HfstOptimizedLookup.NO_SYMBOL_NUMBER)
-			symbols.add(alphabet.keyTable.get(state.outputString[i++]));
-		state.displayVector.add(new Result(symbols, state.current_weight));
+		state.displayVector.add(new Result(getSymbols(state), state.current_weight));
 	}
 
 	@Override

@@ -114,7 +114,7 @@ public class UnweightedTransducer implements Transducer {
 	private class State {
 		protected Stack<int[]> stateStack;
 		protected ArrayList<Result> displayVector;
-		protected int[] outputString;
+		protected IntArrayList outputString;
 		protected IntArrayList inputString;
 		protected int outputPointer;
 		protected int inputPointer;
@@ -125,9 +125,7 @@ public class UnweightedTransducer implements Transducer {
 			for (int i = 0; i < neutral.length; ++i)
 				neutral[i] = 0;
 			stateStack.push(neutral);
-			outputString = new int[1000];
-			for (int i = 0; i < 1000; i++)
-				outputString[i] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+			outputString = new IntArrayList();
 			inputString = new IntArrayList();
 			outputPointer = 0;
 			inputPointer = 0;
@@ -175,7 +173,8 @@ public class UnweightedTransducer implements Transducer {
 					++index;
 					continue;
 				} else {
-					state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+					if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+					else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 					++state.outputPointer;
 					getAnalyses(transitionTable.getTarget(index), state);
 					--state.outputPointer;
@@ -184,7 +183,8 @@ public class UnweightedTransducer implements Transducer {
 					continue;
 				}
 			} else if (transitionTable.getInput(index) == 0) { // epsilon transitions
-				state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+				else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 				++state.outputPointer;
 				getAnalyses(transitionTable.getTarget(index), state);
 				--state.outputPointer;
@@ -201,7 +201,8 @@ public class UnweightedTransducer implements Transducer {
 	private void findTransitions(int index, State state) {
 		while (transitionTable.getInput(index) != HfstOptimizedLookup.NO_SYMBOL_NUMBER) {
 			if (transitionTable.getInput(index) == state.inputString.get(state.inputPointer - 1)) {
-				state.outputString[state.outputPointer] = transitionTable.getOutput(index);
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(transitionTable.getOutput(index));
+				else state.outputString.set(state.outputPointer,transitionTable.getOutput(index));
 				++state.outputPointer;
 				getAnalyses(transitionTable.getTarget(index), state);
 				--state.outputPointer;
@@ -215,7 +216,8 @@ public class UnweightedTransducer implements Transducer {
 			int index = pivot(idx);
 			tryEpsilonTransitions(index + 1, state);
 			if (state.inputString.get(state.inputPointer) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) { // end of input string
-				state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+				else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 				if (transitionTable.isFinal(index)) noteAnalysis(state);
 				return;
 			}
@@ -225,7 +227,8 @@ public class UnweightedTransducer implements Transducer {
 			int index = pivot(idx);
 			tryEpsilonIndices(index + 1, state);
 			if (state.inputString.get(state.inputPointer) == HfstOptimizedLookup.NO_SYMBOL_NUMBER) { // end of input string
-				state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+				if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+				else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 				if (indexTable.isFinal(index)) noteAnalysis(state);
 				return;
 			}
@@ -233,15 +236,20 @@ public class UnweightedTransducer implements Transducer {
 			findIndex(index + 1, state);
 		}
 		--state.inputPointer;
-		state.outputString[state.outputPointer] = HfstOptimizedLookup.NO_SYMBOL_NUMBER;
+		if (state.outputPointer==state.outputString.size()) state.outputString.add(HfstOptimizedLookup.NO_SYMBOL_NUMBER);
+		else state.outputString.set(state.outputPointer,HfstOptimizedLookup.NO_SYMBOL_NUMBER);
 	}
 
-	private void noteAnalysis(State state) {
+	private List<String> getSymbols(State state) {
 		int i = 0;
 		List<String> symbols = new ArrayList<String>();
-		while (state.outputString[i] != HfstOptimizedLookup.NO_SYMBOL_NUMBER)
-			symbols.add(alphabet.keyTable.get(state.outputString[i++]));
-		state.displayVector.add(new Result(symbols, 1.0f));
+		while (i<state.outputString.size() && state.outputString.get(i) != HfstOptimizedLookup.NO_SYMBOL_NUMBER)
+			symbols.add(alphabet.keyTable.get(state.outputString.get(i++)));
+		return symbols;
+	}
+	
+	private void noteAnalysis(State state) {
+		state.displayVector.add(new Result(getSymbols(state), 1.0f));
 	}
 
 	@Override
