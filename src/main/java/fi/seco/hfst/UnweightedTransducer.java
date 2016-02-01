@@ -1,5 +1,6 @@
 package fi.seco.hfst;
 
+import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,9 @@ public class UnweightedTransducer implements Transducer {
 			return (ti_inputSymbols[i] == HfstOptimizedLookup.NO_SYMBOL_NUMBER && ti_targets[i] != HfstOptimizedLookup.NO_TABLE_INDEX);
 		}
 
-		public IndexTable(InputStream input, int indicesCount) throws java.io.IOException {
+		public IndexTable(DataInputStream input, int indicesCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(indicesCount * 6);
-			input.read(b.getBytes());
+			input.readFully(b.getBytes());
 			// each index entry is a unsigned short followed by an unsigned int
 			ti_inputSymbols = new int[indicesCount];
 			ti_targets = new long[indicesCount];
@@ -60,10 +61,10 @@ public class UnweightedTransducer implements Transducer {
 		private final int[] ti_outputSymbols;
 		private final long[] ti_targets;
 
-		public TransitionTable(InputStream input, int transitionCount) throws java.io.IOException {
+		public TransitionTable(DataInputStream input, int transitionCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(transitionCount * 8);
 			// each transition entry is two unsigned shorts and an unsigned int
-			input.read(b.getBytes());
+			input.readFully(b.getBytes());
 			ti_inputSymbols = new int[transitionCount];
 			ti_outputSymbols = new int[transitionCount];
 			ti_targets = new long[transitionCount];
@@ -144,7 +145,7 @@ public class UnweightedTransducer implements Transducer {
 		}
 	}
 
-	public UnweightedTransducer(InputStream input, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
+	public UnweightedTransducer(DataInputStream input, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
 		header = h;
 		alphabet = a;
 		operations = alphabet.operations;

@@ -1,5 +1,6 @@
 package fi.seco.hfst;
 
+import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,9 @@ public class WeightedTransducer implements Transducer {
 			return Float.intBitsToFloat((int) ti_targets[i]);
 		}
 
-		public IndexTable(InputStream input, int indicesCount) throws java.io.IOException {
+		public IndexTable(DataInputStream input, int indicesCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(indicesCount * 6);
-			input.read(b.getBytes());
+			input.readFully(b.getBytes());
 			// each index entry is a unsigned short followed by an unsigned int
 			ti_inputSymbols = new int[indicesCount];
 			ti_targets = new long[indicesCount];
@@ -65,10 +66,10 @@ public class WeightedTransducer implements Transducer {
 		private final long[] ti_targets;
 		private final float[] ti_weights;
 
-		public TransitionTable(InputStream input, int transitionCount) throws java.io.IOException {
+		public TransitionTable(DataInputStream input, int transitionCount) throws java.io.IOException {
 			ByteArray b = new ByteArray(transitionCount * 12);
 			// each transition entry is two unsigned shorts and an unsigned int
-			input.read(b.getBytes());
+			input.readFully(b.getBytes());
 			ti_inputSymbols = new int[transitionCount];
 			ti_outputSymbols = new int[transitionCount];
 			ti_targets = new long[transitionCount];
@@ -150,7 +151,7 @@ public class WeightedTransducer implements Transducer {
 		}
 	}
 
-	public WeightedTransducer(InputStream file, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
+	public WeightedTransducer(DataInputStream file, TransducerHeader h, TransducerAlphabet a) throws java.io.IOException {
 		header = h;
 		alphabet = a;
 		operations = alphabet.operations;

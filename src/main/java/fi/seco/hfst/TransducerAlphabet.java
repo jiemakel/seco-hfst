@@ -1,8 +1,12 @@
 package fi.seco.hfst;
 
 import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import com.carrotsearch.hppc.ByteArrayList;
+import com.carrotsearch.hppc.CharArrayList;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
@@ -27,15 +31,20 @@ public class TransducerAlphabet {
 		value_bucket.put("", 0); // neutral value
 		int i = 0;
 		int charindex;
-		byte[] chars = new byte[1000]; // FIXME magic number
+		ByteArrayList chars = new ByteArrayList();
+		InputStreamReader in = new InputStreamReader(charstream, "UTF-8"); 
 		while (i < number_of_symbols) {
 			charindex = 0;
-			chars[charindex] = charstream.readByte();
-			while (chars[charindex] != 0) {
+			if (chars.size()==charindex)
+				chars.add(charstream.readByte());
+			else chars.set(charindex,charstream.readByte());
+			while (chars.get(charindex) != 0) {
 				++charindex;
-				chars[charindex] = charstream.readByte();
+				if (chars.size()==charindex)
+					chars.add(charstream.readByte());
+				else chars.set(charindex,charstream.readByte());
 			}
-			String ustring = new String(chars, 0, charindex, "UTF-8");
+			String ustring = new String(chars.toArray(), 0, charindex, "UTF-8");
 			if (ustring.length() > 5 && ustring.charAt(0) == '@' && ustring.charAt(ustring.length() - 1) == '@' && ustring.charAt(2) == '.') { // flag diacritic identified
 				HfstOptimizedLookup.FlagDiacriticOperator op;
 				String[] parts = ustring.substring(1, ustring.length() - 1).split("\\.");

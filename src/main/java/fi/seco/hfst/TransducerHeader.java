@@ -1,5 +1,6 @@
 package fi.seco.hfst;
 
+import java.io.DataInputStream;
 import java.io.InputStream;
 
 /**
@@ -31,18 +32,18 @@ public class TransducerHeader {
 	 * Read in the (56 bytes of) header information, which unfortunately is
 	 * mostly in little-endian unsigned form.
 	 */
-	public TransducerHeader(InputStream input) throws java.io.IOException {
+	public TransducerHeader(DataInputStream input) throws java.io.IOException {
 		hfst3 = false;
 		intact = true; // could add some checks to toggle this and check outside
 		ByteArray head = new ByteArray(5);
-		input.read(head.getBytes());
+		input.readFully(head.getBytes());
 		if (begins_hfst3_header(head)) {
 			skip_hfst3_header(input);
 			input.read(head.getBytes());
 			hfst3 = true;
 		}
 		ByteArray b = new ByteArray(head, 56);
-		input.read(b.getBytes(), 5, 51);
+		input.readFully(b.getBytes(), 5, 51);
 
 		number_of_input_symbols = b.getUShort();
 		number_of_symbols = b.getUShort();
@@ -68,9 +69,9 @@ public class TransducerHeader {
 		return (bytes.getUByte() == 72 && bytes.getUByte() == 70 && bytes.getUByte() == 83 && bytes.getUByte() == 84 && bytes.getUByte() == 0);
 	}
 
-	public void skip_hfst3_header(InputStream file) throws java.io.IOException {
+	public void skip_hfst3_header(DataInputStream file) throws java.io.IOException {
 		ByteArray len = new ByteArray(2);
-		file.read(len.getBytes());
+		file.readFully(len.getBytes());
 		file.skip(len.getUShort() + 1);
 	}
 
