@@ -3,6 +3,7 @@ package fi.seco.hfst;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -280,6 +281,7 @@ public class WeightedTransducer implements Transducer {
 	@Override
 	public List<Result> analyze(String input) {
 		State state = new State(input);
+		if (state.inputString.get(0)==HfstOptimizedLookup.NO_SYMBOL_NUMBER) return Collections.emptyList();
 		getAnalyses(0, state);
 		return state.displayVector;
 	}
