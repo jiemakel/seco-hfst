@@ -1,12 +1,9 @@
 package fi.seco.hfst;
 
 import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import com.carrotsearch.hppc.ByteArrayList;
-import com.carrotsearch.hppc.CharArrayList;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
@@ -32,7 +29,6 @@ public class TransducerAlphabet {
 		int i = 0;
 		int charindex;
 		ByteArrayList chars = new ByteArrayList();
-		InputStreamReader in = new InputStreamReader(charstream, "UTF-8"); 
 		while (i < number_of_symbols) {
 			charindex = 0;
 			if (chars.size()==charindex)

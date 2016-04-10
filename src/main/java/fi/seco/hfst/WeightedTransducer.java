@@ -1,7 +1,6 @@
 package fi.seco.hfst;
 
 import java.io.DataInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

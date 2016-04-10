@@ -1,7 +1,6 @@
 package fi.seco.hfst;
 
 import java.io.DataInputStream;
-import java.io.InputStream;
 
 /**
  * On instantiation reads the transducer's header and provides an interface to
