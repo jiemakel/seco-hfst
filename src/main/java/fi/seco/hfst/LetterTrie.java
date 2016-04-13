@@ -1,12 +1,12 @@
 package fi.seco.hfst;
 
-import com.carrotsearch.hppc.CharIntOpenHashMap;
-import com.carrotsearch.hppc.CharObjectOpenHashMap;
+import com.carrotsearch.hppc.CharIntHashMap;
+import com.carrotsearch.hppc.CharObjectHashMap;
 
 public class LetterTrie {
 	public class LetterTrieNode {
-		private final CharIntOpenHashMap symbols;
-		private final CharObjectOpenHashMap<LetterTrieNode> children;
+		private final CharIntHashMap symbols;
+		private final CharObjectHashMap<LetterTrieNode> children;
 
 		public void addString(String str, int symbolNumber) {
 			if (str.length() > 1) {
@@ -41,8 +41,8 @@ public class LetterTrie {
 		}
 
 		public LetterTrieNode() {
-			symbols = new CharIntOpenHashMap();
-			children = new CharObjectOpenHashMap<LetterTrieNode>();
+			symbols = new CharIntHashMap();
+			children = new CharObjectHashMap<LetterTrieNode>();
 		}
 	}
 
