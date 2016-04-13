@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import com.carrotsearch.hppc.ByteArrayList;
 import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import com.carrotsearch.hppc.ObjectIntHashMap;
 
 /**
  * On instantiation reads the transducer's alphabet and provides an interface to
@@ -20,9 +20,9 @@ public class TransducerAlphabet {
 
 	public TransducerAlphabet(DataInputStream charstream, int number_of_symbols) throws java.io.IOException {
 		keyTable = new ArrayList<String>();
-		operations = new IntObjectOpenHashMap<FlagDiacriticOperation>();
-		ObjectIntMap<String> feature_bucket = new ObjectIntOpenHashMap<String>();
-		ObjectIntMap<String> value_bucket = new ObjectIntOpenHashMap<String>();
+		operations = new IntObjectHashMap<FlagDiacriticOperation>();
+		ObjectIntMap<String> feature_bucket = new ObjectIntHashMap<String>();
+		ObjectIntMap<String> value_bucket = new ObjectIntHashMap<String>();
 		features = 0;
 		int values = 1;
 		value_bucket.put("", 0); // neutral value
