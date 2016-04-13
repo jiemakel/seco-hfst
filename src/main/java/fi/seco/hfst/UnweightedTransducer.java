@@ -263,6 +263,11 @@ public class UnweightedTransducer implements Transducer {
 		getAnalyses(0, state);
 		return state.displayVector;
 	}
+	
+	@Override
+	public List<String> getAlphabet() {
+		return alphabet.keyTable;
+	}
 
 	private boolean pushState(FlagDiacriticOperation flag, State state) {
 		int[] top = new int[alphabet.features];

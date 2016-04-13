@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface Transducer {
 	public List<Result> analyze(String str);
+	public List<String> getAlphabet();
 
 	public static final class Result {
 		private final List<String> symbols;
